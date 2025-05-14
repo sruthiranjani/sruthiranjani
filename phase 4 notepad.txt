@@ -1,0 +1,92 @@
+import pandas as pd
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+import random
+
+# ------------------------
+# 1. CUSTOMER PROFILING
+# ------------------------
+
+# Sample customer data
+customers = pd.DataFrame({
+    'CustomerID': [1, 2, 3, 4, 5],
+    'Name': ['Alice', 'Bob', 'Cathy', 'David', 'Ella'],
+    'Age': [25, 34, 45, 23, 31],
+    'AnnualIncome': [50000, 60000, 120000, 35000, 70000],
+    'SpendingScore': [70, 45, 90, 30, 60]
+})
+
+# Normalize relevant features
+scaler = StandardScaler()
+scaled_features = scaler.fit_transform(customers[['Age', 'AnnualIncome', 'SpendingScore']])
+
+# Apply KMeans clustering
+kmeans = KMeans(n_clusters=3, random_state=0)
+customers['Segment'] = kmeans.fit_predict(scaled_features)
+
+# ------------------------
+# 2. PRODUCT RECOMMENDATION
+# ------------------------
+
+# Sample product catalog
+products = pd.DataFrame({
+    'ProductID': [101, 102, 103],
+    'Name': ['Smartwatch', 'Running Shoes', 'Wireless Earbuds'],
+    'Category': ['Electronics', 'Fitness', 'Electronics'],
+    'PopularityScore': [0.8, 0.7, 0.9]
+})
+
+# Simulated user preference vector (weights per category: Electronics, Fitness)
+user_pref = np.array([[0.85, 0.6]])
+
+# Simulate product vectors by mapping categories
+category_map = {'Electronics': [1, 0], 'Fitness': [0, 1]}
+product_vectors = np.array([category_map[cat] for cat in products['Category']])
+similarity_scores = cosine_similarity(user_pref, product_vectors)
+
+recommended_index = np.argmax(similarity_scores)
+recommended_product = products.iloc[recommended_index]
+
+# ------------------------
+# 3. PERSONALIZED EMAIL
+# ------------------------
+
+def generate_email(name, product_name, segment):
+    return f"""
+    Hi {name},
+
+    As a valued member of Segment {segment}, we have a personalized recommendation just for you!
+
+    Discover our latest {product_name}—perfectly matched to your interests.
+
+    Visit our site today to enjoy an exclusive offer crafted especially for you.
+
+    Cheers,
+    YourBrand Team
+    """
+
+# Apply to one customer
+customer = customers.iloc[0]
+email_message = generate_email(customer['Name'], recommended_product['Name'], customer['Segment'])
+
+# ------------------------
+# 4. REAL-TIME BEHAVIOR TRIGGER
+# ------------------------
+
+# Simulate user actions
+user_actions = ['viewed electronics', 'added to cart', 'searched for fitness gear']
+
+def behavior_trigger(action):
+    if 'cart' in action:
+        return "Trigger: Send discount coupon"
+    elif 'searched' in action:
+        return "Trigger: Show personalized ad"
+    elif 'viewed' in action:
+        return "Trigger: Log user interest"
+    return "Trigger: No action"
+
+# Output all behavior triggers
+triggers = [behavior_trigger(action) for action in user_actions]
+
