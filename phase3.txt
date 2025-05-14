@@ -1,0 +1,31 @@
+import pandas as pd
+from sklearn.cluster import KMeans
+import random
+
+# Sample customer data
+data = {
+    'CustomerID': [1, 2, 3, 4, 5],
+    'Age': [25, 45, 35, 50, 23],
+    'AnnualIncome': [50000, 100000, 75000, 120000, 40000],
+    'SpendingScore': [60, 30, 80, 20, 70]
+}
+
+df = pd.DataFrame(data)
+
+# Step 1: Customer Segmentation using KMeans
+X = df[['AnnualIncome', 'SpendingScore']]
+kmeans = KMeans(n_clusters=2, random_state=42)
+df['Segment'] = kmeans.fit_predict(X)
+
+# Step 2: Personalized message function
+def personalized_message(customer):
+    if customer['Segment'] == 0:
+        return f"Hi Customer {customer['CustomerID']}, check out our premium offers tailored for high spenders!"
+    else:
+        return f"Hello Customer {customer['CustomerID']}, enjoy special discounts on budget-friendly options!"
+
+# Step 3: Apply personalization
+df['Message'] = df.apply(personalized_message, axis=1)
+
+# Display the result
+print(df[['CustomerID', 'Segment', 'Message']])
