@@ -1,0 +1,50 @@
+import random
+import json
+from datetime import datetime
+customers = {
+    "user001": {"name": "Alice", "age": 29, "location": "NY", "interests": ["fitness", "tech"]},
+    "user002": {"name": "Bob", "age": 35, "location": "LA", "interests": ["fashion", "travel"]},
+}
+products = {
+    "fitness": ["Yoga Mat", "Protein Shake", "Smartwatch"],
+    "tech": ["Wireless Earbuds", "Laptop", "Smartphone"],
+    "fashion": ["Sneakers", "Jacket", "Backpack"],
+    "travel": ["Travel Pillow", "Luggage Set", "Guide Book"]
+}
+
+user_behavior_log = {}
+
+def track_user_behavior(user_id, behavior):
+    timestamp = datetime.now().isoformat()
+    if user_id not in user_behavior_log:
+        user_behavior_log[user_id] = []
+    user_behavior_log[user_id].append({"time": timestamp, "action": behavior})
+    print(f"[LOG] {user_id} performed '{behavior}' at {timestamp}")
+
+def generate_recommendations(user_id):
+    user_data = customers.get(user_id)
+    if not user_data:
+        return []
+    
+    interests = user_data["interests"]
+    recommendations = []
+    for interest in interests:
+        recommendations.extend(random.sample(products.get(interest, []), 2))
+    return recommendations
+
+def personalized_marketing_message(user_id):
+    user = customers[user_id]
+    recs = generate_recommendations(user_id)
+    message = f"Hi {user['name']}! Based on your interest in {', '.join(user['interests'])},           we recommend: {', '.join(recs)}. Check them out today!"
+    return message
+
+if _name_ == "_main_":
+    selected_user = "user001"
+    track_user_behavior(selected_user, "Viewed product: Smartwatch")
+    track_user_behavior(selected_user, "Clicked ad: Fitness Gear")
+
+    print("\n[PERSONALIZED RECOMMENDATIONS]")
+    print(json.dumps(generate_recommendations(selected_user), indent=2))
+
+   print("\n[MARKETING MESSAGE]")
+    print(personalized_marketing_message(selected_user))
